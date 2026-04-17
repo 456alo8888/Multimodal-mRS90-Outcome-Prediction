@@ -20,7 +20,9 @@ class DataGenerator_TRACE_Regression(Sequence):
         path_remap_to: Optional[str] = None,
         defaults: Optional[Dict[str, float]] = None,
         category_maps: Optional[Dict[str, Dict[float, int]]] = None,
+        **kwargs,
     ):
+        super().__init__(**kwargs)
         self.df = split_df.reset_index(drop=True)
         self.target_col = target_col
         self.continuous_features = continuous_features
@@ -74,7 +76,15 @@ class DataGenerator_TRACE_Regression(Sequence):
             C_categorical[k, :] = cat_vec
             y[k] = np.float32(row[self.target_col])
 
-        X_list = [X]
-        C_categorical_list = np.split(C_categorical, len(self.categorical_features), axis=1)
-        C_continuous_list = np.split(C_continuous, len(self.continuous_features), axis=1)
-        return [X_list, C_categorical_list, C_continuous_list], y
+        image_inputs = (X,)
+        categorical_inputs = (
+            tuple(np.split(C_categorical, len(self.categorical_features), axis=1))
+            if self.categorical_features
+            else tuple()
+        )
+        continuous_inputs = (
+            tuple(np.split(C_continuous, len(self.continuous_features), axis=1))
+            if self.continuous_features
+            else tuple()
+        )
+        return (image_inputs, categorical_inputs, continuous_inputs), y

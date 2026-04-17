@@ -1,0 +1,26 @@
+{
+  "loss_name": "huber",
+  "disable_tabular": 0,
+  "n_train": 435,
+  "n_valid": 93,
+  "n_test": 94,
+  "val_loss": 1.1210628747940063,
+  "val_mae": 1.5861012935638428,
+  "val_rmse": 1.8177316188812256,
+  "val_r2": -0.00859689712524414,
+  "test_loss": 1.0585877895355225,
+  "test_mae": 1.5213395357131958,
+  "test_rmse": 1.7489312887191772,
+  "test_r2": -0.005439162254333496,
+  "epochs": 100,
+  "history_keys": [
+    "loss",
+    "mae",
+    "r2",
+    "rmse",
+    "val_loss",
+    "val_mae",
+    "val_r2",
+    "val_rmse"
+  ]
+}

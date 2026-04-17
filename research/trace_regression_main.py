@@ -8,6 +8,8 @@ import numpy as np
 import pandas as pd
 
 import trace_regression_config as cfg
+from tensorflow import keras
+
 
 
 def parse_args():
@@ -83,7 +85,7 @@ def build_model(image_shape, continuous_cols, categorical_cols, categorical_size
         dropout=cfg.transformer_params["dropout_rate"],
     )
 
-    model_inputs = [[trace_input], [], []]
+    model_inputs = ((trace_input,), tuple(), tuple())
 
     if disable_tabular:
         features = self_imaging[:, 0]
@@ -105,7 +107,9 @@ def build_model(image_shape, continuous_cols, categorical_cols, categorical_size
             continuous_i = Input(shape=(1,), dtype="float32", name=feature_name)
             continuous_i_ = Dense(embed_dim, activation="relu")(continuous_i)
             N_inputs.append(continuous_i)
-            N_embedding_outputs.append(tf.expand_dims(continuous_i_, axis=1))
+            N_embedding_outputs.append(
+                keras.layers.Lambda(lambda x: keras.ops.expand_dims(x, axis=1))(continuous_i_)
+            )
         continuous_inputs = Concatenate(axis=1)(N_embedding_outputs)
 
         metadata_encoded = Concatenate(axis=1)([continuous_inputs, categorical_inputs])
@@ -123,7 +127,7 @@ def build_model(image_shape, continuous_cols, categorical_cols, categorical_size
             embed_dim=embed_dim,
             dropout=cfg.transformer_params["dropout_rate"],
         )
-        model_inputs = [[trace_input], C_inputs, N_inputs]
+        model_inputs = ((trace_input,), tuple(C_inputs), tuple(N_inputs))
 
     mlp_hidden_units_factors = [2, 1]
     mlp_hidden_units = [int(factor * int(features.shape[-1])) for factor in mlp_hidden_units_factors]
@@ -223,6 +227,7 @@ def main():
         metrics=[
             tf.keras.metrics.MeanAbsoluteError(name="mae"),
             tf.keras.metrics.RootMeanSquaredError(name="rmse"),
+            tf.keras.metrics.R2Score(name="r2")
         ],
     )
 
@@ -260,9 +265,11 @@ def main():
         "val_loss": float(val_eval[0]),
         "val_mae": float(val_eval[1]),
         "val_rmse": float(val_eval[2]),
+        "val_r2": float(val_eval[3]),
         "test_loss": float(test_eval[0]),
         "test_mae": float(test_eval[1]),
         "test_rmse": float(test_eval[2]),
+        "test_r2": float(test_eval[3]),
         "epochs": int(args.epochs),
         "history_keys": list(history.history.keys()),
     }
