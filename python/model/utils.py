@@ -8,37 +8,91 @@ from tensorflow.keras.layers import Input, Conv3D, Dropout, Dense, Reshape, Embe
 #        MODEL ARCHITECTURE
 # -----------------------------------
 
+# class ENCODER:
+#     @staticmethod
+#     def build(reg=l2(), shape=(512, 512, 16), init='he_normal', name='Encoder'):
+#         # Create the model
+#         i = Input(shape=(*shape, 1))
+
+#         # The first two layers will learn a total of 16 filters with a 3x3x3 kernel size
+#         o = Conv3D(16, (3, 3, 3), strides=(1, 1, 1), padding="same", activation='relu', kernel_initializer=init, kernel_regularizer=reg)(i)
+#         d1 = Conv3D(16, (3, 3, 3), strides=(1, 1, 1), padding="same", activation='relu', kernel_initializer=init, kernel_regularizer=reg, name='d1')(o)
+#         o = Conv3D(16, (2, 2, 2), strides=(2, 2, 2))(d1)  # Down-sampling
+
+#         # Stack two more layers, keeping the size of each filter as 3x3x3 but increasing to 32 total learned filters
+#         o = Conv3D(32, (3, 3, 3), strides=(1, 1, 1), padding="same", activation='relu', kernel_initializer=init, kernel_regularizer=reg)(o)
+#         d2 = Conv3D(32, (3, 3, 3), strides=(1, 1, 1), padding="same", activation='relu', kernel_initializer=init, kernel_regularizer=reg, name='d2')(o)
+#         o = Conv3D(32, (2, 2, 2), strides=(2, 2, 2))(d2)  # Down-sampling
+
+#         # Stack two more layers, keeping the size of each filter as 3x3x3 but increasing to 64 total learned filters
+#         o = Conv3D(64, (3, 3, 3), strides=(1, 1, 1), padding="same", activation='relu', kernel_initializer=init, kernel_regularizer=reg)(o)
+#         d3 = Conv3D(64, (3, 3, 3), strides=(1, 1, 1), padding="same", activation='relu', kernel_initializer=init, kernel_regularizer=reg, name='d3')(o)
+#         o = Conv3D(64, (2, 2, 2), strides=(2, 2, 2))(d3)  # Down-sampling
+
+#         # Stack two more layers, keeping the size of each filter as 3x3x3 but increasing to 128 total learned filters
+#         o = Conv3D(128, (3, 3, 3), strides=(1, 1, 1), padding="same", activation='relu', kernel_initializer=init, kernel_regularizer=reg)(o)
+#         d4 = Conv3D(128, (3, 3, 3), strides=(1, 1, 1), padding="same", activation='relu', kernel_initializer=init, kernel_regularizer=reg, name='d4')(o)
+#         o = Conv3D(1, (2, 2, 2), strides=(2, 2, 2))(d4)  # Down-sampling
+
+#         # Encoder outputs
+#         size = o.shape[1] * o.shape[2] * o.shape[3]
+#         output = Reshape((1, size))(o)
+#         return Model(inputs=i, outputs=[output], name=name)
+
+
+import tensorflow as tf
+from tensorflow.keras import Model
+from tensorflow.keras.layers import Input, Conv3D, Reshape
+from tensorflow.keras.regularizers import l2
+
+
 class ENCODER:
     @staticmethod
-    def build(reg=l2(), shape=(512, 512, 16), init='he_normal', name='Encoder'):
-        # Create the model
+    def build(
+        reg=l2(5e-5),
+        shape=(224, 224, 26),
+        init="he_normal",
+        latent_dim=128,
+        name="Encoder",
+    ):
         i = Input(shape=(*shape, 1))
 
-        # The first two layers will learn a total of 16 filters with a 3x3x3 kernel size
-        o = Conv3D(16, (3, 3, 3), strides=(1, 1, 1), padding="same", activation='relu', kernel_initializer=init, kernel_regularizer=reg)(i)
-        d1 = Conv3D(16, (3, 3, 3), strides=(1, 1, 1), padding="same", activation='relu', kernel_initializer=init, kernel_regularizer=reg, name='d1')(o)
-        o = Conv3D(16, (2, 2, 2), strides=(2, 2, 2))(d1)  # Down-sampling
+        x = Conv3D(16, 3, padding="same", activation="relu",
+                   kernel_initializer=init, kernel_regularizer=reg)(i)
+        x = Conv3D(16, 3, padding="same", activation="relu",
+                   kernel_initializer=init, kernel_regularizer=reg, name="d1")(x)
+        x = Conv3D(32, 3, strides=(2, 2, 1), padding="same", activation="relu",
+                   kernel_initializer=init, kernel_regularizer=reg, name="down1")(x)
 
-        # Stack two more layers, keeping the size of each filter as 3x3x3 but increasing to 32 total learned filters
-        o = Conv3D(32, (3, 3, 3), strides=(1, 1, 1), padding="same", activation='relu', kernel_initializer=init, kernel_regularizer=reg)(o)
-        d2 = Conv3D(32, (3, 3, 3), strides=(1, 1, 1), padding="same", activation='relu', kernel_initializer=init, kernel_regularizer=reg, name='d2')(o)
-        o = Conv3D(32, (2, 2, 2), strides=(2, 2, 2))(d2)  # Down-sampling
+        x = Conv3D(32, 3, padding="same", activation="relu",
+                   kernel_initializer=init, kernel_regularizer=reg)(x)
+        x = Conv3D(32, 3, padding="same", activation="relu",
+                   kernel_initializer=init, kernel_regularizer=reg, name="d2")(x)
+        x = Conv3D(64, 3, strides=(2, 2, 2), padding="same", activation="relu",
+                   kernel_initializer=init, kernel_regularizer=reg, name="down2")(x)
 
-        # Stack two more layers, keeping the size of each filter as 3x3x3 but increasing to 64 total learned filters
-        o = Conv3D(64, (3, 3, 3), strides=(1, 1, 1), padding="same", activation='relu', kernel_initializer=init, kernel_regularizer=reg)(o)
-        d3 = Conv3D(64, (3, 3, 3), strides=(1, 1, 1), padding="same", activation='relu', kernel_initializer=init, kernel_regularizer=reg, name='d3')(o)
-        o = Conv3D(64, (2, 2, 2), strides=(2, 2, 2))(d3)  # Down-sampling
+        x = Conv3D(64, 3, padding="same", activation="relu",
+                   kernel_initializer=init, kernel_regularizer=reg)(x)
+        x = Conv3D(64, 3, padding="same", activation="relu",
+                   kernel_initializer=init, kernel_regularizer=reg, name="d3")(x)
+        x = Conv3D(96, 3, strides=(2, 2, 1), padding="same", activation="relu",
+                   kernel_initializer=init, kernel_regularizer=reg, name="down3")(x)
 
-        # Stack two more layers, keeping the size of each filter as 3x3x3 but increasing to 128 total learned filters
-        o = Conv3D(128, (3, 3, 3), strides=(1, 1, 1), padding="same", activation='relu', kernel_initializer=init, kernel_regularizer=reg)(o)
-        d4 = Conv3D(128, (3, 3, 3), strides=(1, 1, 1), padding="same", activation='relu', kernel_initializer=init, kernel_regularizer=reg, name='d4')(o)
-        o = Conv3D(1, (2, 2, 2), strides=(2, 2, 2))(d4)  # Down-sampling
+        x = Conv3D(96, 3, padding="same", activation="relu",
+                   kernel_initializer=init, kernel_regularizer=reg)(x)
+        x = Conv3D(96, 3, padding="same", activation="relu",
+                   kernel_initializer=init, kernel_regularizer=reg, name="d4")(x)
+        x = Conv3D(128, 3, strides=(2, 2, 1), padding="same", activation="relu",
+                   kernel_initializer=init, kernel_regularizer=reg, name="down4")(x)
 
-        # Encoder outputs
-        size = o.shape[1] * o.shape[2] * o.shape[3]
-        output = Reshape((1, size))(o)
+        x = Conv3D(latent_dim, 3, strides=(2, 2, 1), padding="same", activation="relu",
+                   kernel_initializer=init, kernel_regularizer=reg, name="down5")(x)
+
+        h, w, d, c = x.shape[1], x.shape[2], x.shape[3], x.shape[4]
+        n_tokens = h * w * d
+        output = Reshape((n_tokens, c), name="image_tokens")(x)
+
         return Model(inputs=i, outputs=[output], name=name)
-
 
 class SelfAttention:
     @staticmethod

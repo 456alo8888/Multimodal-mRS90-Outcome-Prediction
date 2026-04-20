@@ -1,18 +1,18 @@
 {
   "loss_name": "huber",
   "disable_tabular": 0,
-  "n_train": 435,
-  "n_valid": 93,
-  "n_test": 94,
-  "val_loss": 1.1210628747940063,
-  "val_mae": 1.5861012935638428,
-  "val_rmse": 1.8177316188812256,
-  "val_r2": -0.00859689712524414,
-  "test_loss": 1.0585877895355225,
-  "test_mae": 1.5213395357131958,
-  "test_rmse": 1.7489312887191772,
-  "test_r2": -0.005439162254333496,
-  "epochs": 100,
+  "n_train": 2,
+  "n_valid": 2,
+  "n_test": 2,
+  "val_loss": 0.49213945865631104,
+  "val_mae": 0.7741599082946777,
+  "val_rmse": 0.9213485717773438,
+  "val_r2": -2.3955326080322266,
+  "test_loss": 0.13320600986480713,
+  "test_mae": 0.30434298515319824,
+  "test_rmse": 0.30586788058280945,
+  "test_r2": 0.0,
+  "epochs": 1,
   "history_keys": [
     "loss",
     "mae",
@@ -22,5 +22,11 @@
     "val_mae",
     "val_r2",
     "val_rmse"
-  ]
+  ],
+  "run_name": "",
+  "run_tag": "",
+  "timestamp_utc": "2026-04-19T19:43:40.069630+00:00",
+  "active_output_dir": "/mnt/disk1/hieupc/4gpus-Stroke-outcome-prediction-code/code/baseline/Multimodal-mRS90-Outcome-Prediction/research/results_trace_regression",
+  "path_remap_from": "/mnt/disk1",
+  "path_remap_to": ""
 }

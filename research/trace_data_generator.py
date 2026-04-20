@@ -13,7 +13,7 @@ class DataGenerator_TRACE_Regression(Sequence):
         target_col: str,
         continuous_features: List[str],
         categorical_features: List[str],
-        dim: Tuple[int, int, int] = (256, 256, 26),
+        dim: Tuple[int, int, int] = (224, 224, 26),
         batch_size: int = 1,
         shuffle: bool = True,
         path_remap_from: Optional[str] = None,

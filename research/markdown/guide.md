@@ -83,7 +83,69 @@ Files:
 - `metrics_regression.json`
   - includes: `val_mae`, `val_rmse`, `test_mae`, `test_rmse`, split sizes, loss type
 
-## 8) Notes on current environment
+## 8) W&B logging options
+Optional experiment tracking flags are available in `trace_regression_main.py`:
+- `--wandb-project`
+- `--wandb-run-name`
+- `--wandb-entity`
+- `--disable-wandb`
+
+Smoke run with W&B disabled:
+```bash
+conda run -n hieupcvp python research/trace_regression_main.py --smoke 1 --epochs 1 --disable-wandb
+```
+
+Smoke run with W&B enabled (offline mode example):
+```bash
+WANDB_MODE=offline conda run -n hieupcvp python research/trace_regression_main.py --smoke 1 --epochs 1 --wandb-project stroke-outcome-prediction --wandb-run-name trace_smoke
+```
+
+## 9) Output isolation options
+To avoid overwriting artifacts across runs, use:
+- `--output-dir`
+- `--run-tag`
+
+Example:
+```bash
+conda run -n hieupcvp python research/trace_regression_main.py --smoke 1 --epochs 1 --disable-wandb --output-dir research/results_trace_regression/runs --run-tag smoke_a
+```
+
+Output files remain named:
+- `predictions_regression.npz`
+- `metrics_regression.json`
+
+They are saved under:
+- `output-dir/run-tag/` when `--run-tag` is provided
+- `output-dir/` when `--run-tag` is omitted
+- default `research/results_trace_regression/` when `--output-dir` is omitted
+
+## 10) Matrix runner script
+Run the standard matrix from the research folder script:
+```bash
+bash research/run_trace_regression_matrix.sh
+```
+
+Script environment controls:
+- `WANDB_PROJECT`
+- `WANDB_ENTITY`
+- `TRACE_PATH_REMAP_FROM`
+- `TRACE_PATH_REMAP_TO`
+- `RUNS_BASE_DIR`
+- `DISABLE_WANDB` (`1` disables W&B, `0` enables)
+- `RUN_PRESET` (`all` for full matrix, `smoke` for smoke-only)
+
+Smoke-only matrix example:
+```bash
+RUN_PRESET=smoke DISABLE_WANDB=1 bash research/run_trace_regression_matrix.sh
+```
+
+## 11) Wrapper script
+An example wrapper script is available at repository root:
+```bash
+bash ./bash.sh
+```
+
+## 12) Notes on current environment
 If TensorFlow fails to import with DLL error on Windows, training will not start. In that case:
 1. Verify Python/TensorFlow compatibility.
 2. Verify Microsoft Visual C++ runtime installation.

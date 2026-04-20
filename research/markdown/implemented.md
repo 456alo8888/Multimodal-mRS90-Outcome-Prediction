@@ -16,12 +16,12 @@ No new files were created outside this folder.
 ## New code files
 1. `trace_regression_config.py`
 - Adds TRACE regression configuration block.
-- Encodes split paths, target column, tabular columns, image shape `(256, 256, 26)`, and runtime defaults.
+- Encodes split paths, target column, tabular columns, image shape `(224, 224, 26)`, and runtime defaults.
 
 2. `trace_data_io.py`
 - Implements:
   - `remap_path(path, src_prefix, dst_prefix)`
-  - `load_trace_nifti(path, out_shape=(256,256,26))`
+  - `load_trace_nifti(path, out_shape=(224,224,26))`
   - `extract_tabular_row(...)`
 - Includes resize/pad/crop to exact TRACE shape and per-volume min-max normalization.
 - Supports tabular fallback from `tabular_features` JSON.
@@ -29,7 +29,7 @@ No new files were created outside this folder.
 3. `trace_data_generator.py`
 - Adds class `DataGenerator_TRACE_Regression(Sequence)`.
 - Batch tensor contracts implemented exactly:
-  - `X`: `(batch_size, 256, 256, 26, 1)` float32
+  - `X`: `(batch_size, 224, 224, 26, 1)` float32
   - `C_continuous`: `(batch_size, 2)` float32 (`age`, `bmi`)
   - `C_categorical`: `(batch_size, 5)` int32 (`sex`, `race`, `acuteischaemicstroke`, `priorstroke`, `etiology`)
   - `y`: `(batch_size,)` float32 (`gs_rankin_6isdeath`)
@@ -46,7 +46,7 @@ No new files were created outside this folder.
 - Adds CLI entrypoint for TRACE regression training flow.
 - Loads split CSVs directly (no patient dictionary).
 - Fits train-only tabular defaults/mappings.
-- Builds model with TRACE input shape `(256,256,26,1)` and tabular token branches.
+- Builds model with TRACE input shape `(224,224,26,1)` and tabular token branches.
 - Uses regression objective:
   - output head: `Dense(1, activation='linear')`
   - loss: Huber or MSE
@@ -85,3 +85,29 @@ No new files were created outside this folder.
 - Runtime outputs (when training runs):
   - `code/baseline/Multimodal-mRS90-Outcome-Prediction/research/results_trace_regression/predictions_regression.npz`
   - `code/baseline/Multimodal-mRS90-Outcome-Prediction/research/results_trace_regression/metrics_regression.json`
+
+## 2026-04-20 update: TRACE logging and run ergonomics
+
+### W&B integration points added
+- `trace_regression_main.py`
+  - Added optional CLI flags: `--wandb-project`, `--wandb-run-name`, `--wandb-entity`, `--disable-wandb`
+  - Added run init helper and graceful fallback when `wandb` is unavailable
+  - Added epoch-level callback logging for train/val metrics
+  - Added final val/test metric logging and run metadata logging
+  - Added explicit `wandb_run.finish()` in a `finally` block
+
+### Output isolation behavior added
+- `trace_regression_main.py`
+  - Added `--output-dir` and `--run-tag`
+  - Artifacts now write to runtime-selected directory while preserving filenames:
+    - `predictions_regression.npz`
+    - `metrics_regression.json`
+  - Metrics JSON includes run metadata: run name/tag, timestamp, output directory, and path remap arguments
+
+### Matrix runner and example wrapper
+- Added `research/run_trace_regression_matrix.sh`
+  - Runs standard matrix: smoke, huber, mse, no-tabular
+  - Uses `conda run -n hieupcvp`
+  - Supports env controls: `WANDB_PROJECT`, `WANDB_ENTITY`, `TRACE_PATH_REMAP_FROM`, `TRACE_PATH_REMAP_TO`, `RUNS_BASE_DIR`, `DISABLE_WANDB`, `RUN_PRESET`
+- Added root-level `bash.sh` as an example wrapper that invokes the matrix script
+- Added `research/markdown/guide_2.md` with focused run instructions and examples

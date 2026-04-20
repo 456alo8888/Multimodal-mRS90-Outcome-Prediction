@@ -35,7 +35,7 @@ def _center_crop_or_pad(volume: np.ndarray, out_shape: Tuple[int, int, int]) -> 
     return out
 
 
-def load_trace_nifti(path: str, out_shape: Tuple[int, int, int] = (256, 256, 26)) -> np.ndarray:
+def load_trace_nifti(path: str, out_shape: Tuple[int, int, int] = (224, 224, 26)) -> np.ndarray:
     import nibabel as nib
 
     nii = nib.load(path)

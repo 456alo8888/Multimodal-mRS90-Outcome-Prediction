@@ -5,29 +5,36 @@ REPO_ROOT = Path(__file__).resolve().parents[4]
 BASELINE_MODEL_DIR = REPO_ROOT / "code" / "baseline" / "Multimodal-mRS90-Outcome-Prediction" / "python" / "model"
 
 experiment_mode = "trace_regression"
-trace_split_dir = REPO_ROOT / "code" / "datasets" / "fold_raw_trace_fullmodal_mask"
-trace_target = "gs_rankin_6isdeath"
+trace_split_dir = REPO_ROOT / "code" / "datasets" / "fold_raw_trace_fullmodal_mask" / "NIHSS"
+trace_target = "nihss"
 trace_subject_id_col = "subject_id"
 
 trace_tabular_continuous = ["age", "bmi"]
 trace_tabular_categorical = [
     "sex",
     "race",
-    "acuteischaemicstroke",
     "priorstroke",
-    "etiology",
+    "etiology_1",
+    "etiology_2",
+    "etiology_3",
+    "etiology_4",
+    "etiology_5",
 ]
 trace_tabular_all = [
     "sex",
     "age",
     "race",
-    "acuteischaemicstroke",
     "priorstroke",
     "bmi",
-    "etiology",
+    "etiology_1",
+    "etiology_2",
+    "etiology_3",
+    "etiology_4",
+    "etiology_5",
+
 ]
 
-trace_image_shape = (256, 256, 26)
+trace_image_shape = (224, 224, 26)
 trace_timepoints = 1
 trace_batch_size = 1
 

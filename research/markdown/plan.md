@@ -64,14 +64,14 @@ Out of scope (for v1):
   - `trace_tabular_continuous = ["age", "bmi"]`
   - `trace_tabular_categorical = ["sex", "race", "acuteischaemicstroke", "priorstroke", "etiology"]`
   - `trace_tabular_all = ["sex", "age", "race", "acuteischaemicstroke", "priorstroke", "bmi", "etiology"]`
-  - `trace_image_shape = (256, 256, 26)`
+  - `trace_image_shape = (224, 224, 26)`
   - `trace_timepoints = 1`
   - `trace_batch_size = 1`
   - `trace_train_csv = trace_split_dir + "/train.csv"`
   - `trace_valid_csv = trace_split_dir + "/valid.csv"`
   - `trace_test_csv = trace_split_dir + "/test.csv"`
 - In existing `params`, add parallel keys for trace mode:
-  - `params['trace_dim'] = (256, 256, 26)`
+  - `params['trace_dim'] = (224, 224, 26)`
   - `params['trace_timepoints'] = 1`
   - `params['trace_n_classes'] = 1`
   - `params['trace_features'] = [trace_tabular_continuous, trace_tabular_categorical]`
@@ -101,19 +101,19 @@ Out of scope (for v1):
   - `target_col`
   - `continuous_features`
   - `categorical_features`
-  - `dim=(256, 256, 26)`
+  - `dim=(224, 224, 26)`
   - `batch_size=1`
   - `shuffle=True`
   - optional `path_remap_from`, `path_remap_to`
 - In `__data_generation` implement exact tensor contract:
-  - `X` shape `(batch_size, 256, 256, 26, 1)` float32
+  - `X` shape `(batch_size, 224, 224, 26, 1)` float32
   - `C_continuous` shape `(batch_size, 2)` float32 for `age`, `bmi`
   - `C_categorical` shape `(batch_size, 5)` int32 for `sex`, `race`, `acuteischaemicstroke`, `priorstroke`, `etiology`
   - `y` shape `(batch_size,)` float32 from `gs_rankin_6isdeath`
 - Image loading path:
   - read `image_path` NIfTI
   - apply optional prefix remap (`/mnt/disk1` -> local root)
-  - ensure output volume is resized/padded/cropped to `(256,256,26)`
+  - ensure output volume is resized/padded/cropped to `(224,224,26)`
   - normalize intensity per-volume (min-max to [0,1])
 - Tabular extraction path:
   - preferred: explicit CSV columns in `trace_tabular_all`
@@ -127,7 +127,7 @@ Out of scope (for v1):
 
 4. (Optional, cleaner) New helper module in same folder, e.g. `trace_data_io.py`
 - If created, include exactly these helpers:
-  - `load_trace_nifti(path, out_shape=(256,256,26)) -> np.ndarray`
+  - `load_trace_nifti(path, out_shape=(224,224,26)) -> np.ndarray`
   - `remap_path(path, src_prefix, dst_prefix) -> str`
   - `extract_tabular_row(row, continuous_cols, categorical_cols, defaults) -> (np.ndarray, np.ndarray)`
 - Keep helper-only logic here; batching remains in generator.
@@ -148,7 +148,7 @@ Out of scope (for v1):
 - Replace the current loop over `cfg.params['timepoints']` for trace mode only.
 - Existing CTP path creates 32 Inputs each shaped `(*dim,1)` and concatenates them.
 - Trace path must create one input tensor:
-  - `trace_input = Input(shape=(256,256,26,1), name='TRACE')`
+  - `trace_input = Input(shape=(224,224,26,1), name='TRACE')`
   - `trace_output = base_network(trace_input)[0]`
   - `imaging_encoded = Concatenate(axis=1)([trace_output])` or directly `trace_output`
 - Keep downstream self-attention and fusion calls unchanged.
@@ -181,7 +181,7 @@ Exit criteria:
 - Batch tensor shapes and dtypes are stable.
 
 Required shape assertions:
-- Image branch batch element: `(256,256,26,1)`
+- Image branch batch element: `(224,224,26,1)`
 - `len(X_list) == 1`
 - `len(C_continuous_list) == 2`
 - `len(C_categorical_list) == 5`
