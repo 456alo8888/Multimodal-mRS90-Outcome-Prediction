@@ -8,7 +8,7 @@ from pathlib import Path
 import numpy as np
 import pandas as pd
 
-import trace_regression_config as cfg
+import mrs_regression_config as cfg
 from tensorflow import keras
 
 
