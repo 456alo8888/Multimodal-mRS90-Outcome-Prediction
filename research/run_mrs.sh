@@ -72,16 +72,16 @@ if [[ "$RUN_PRESET" == "smoke" ]]; then
 		--smoke 1 \
 		--epochs 1
 else
-	# run_cfg "trace_huber" \
-	# 	--epochs 100 \
-	# 	--loss huber
+	run_cfg "trace_huber" \
+		--epochs 10 \
+		--loss huber
 
 	# run_cfg "trace_mse" \
 	# 	--epochs 100 \
 	# 	--loss mse
 
 	run_cfg "trace_huber_no_tab" \
-		--epochs 100 \
+		--epochs 10 \
 		--loss huber \
 		--disable-tabular 1
 fi

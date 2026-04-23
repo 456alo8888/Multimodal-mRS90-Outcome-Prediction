@@ -5,7 +5,7 @@ REPO_ROOT = Path(__file__).resolve().parents[4]
 BASELINE_MODEL_DIR = REPO_ROOT / "code" / "baseline" / "Multimodal-mRS90-Outcome-Prediction" / "python" / "model"
 
 experiment_mode = "trace_regression"
-trace_split_dir = REPO_ROOT / "code" / "datasets" / "fold_raw_trace_fullmodal_mask" / "MRS"
+trace_split_dir = REPO_ROOT / "code" / "datasets" / "fold_nonstripped_synthetic_mask" / "MRS"
 trace_target = "gs_rankin_6isdeath"
 trace_subject_id_col = "subject_id"
 
@@ -46,7 +46,7 @@ trace_test_csv = trace_split_dir / "test.csv"
 results_dir = Path(__file__).resolve().parent / "results_trace_regression"
 
 random_seed = 42
-n_epochs = 100
+n_epochs = 10
 learning_rate = 0.001
 loss_name = "huber"
 
